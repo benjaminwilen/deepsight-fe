@@ -3,7 +3,7 @@ import useWebSocket, { ReadyState } from "react-use-websocket"
 
 
 export const PingWebSocket = () => {
-  const WS_URL = "ws://127.0.0.1:800"
+  const WS_URL = "ws://127.0.0.1:6789"
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
     WS_URL,
     {

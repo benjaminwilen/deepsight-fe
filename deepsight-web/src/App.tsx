@@ -1,23 +1,23 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import useWebSocket from './apis/useWebSocket';
 
-const App: React.FC = () => {
+import { PingWebSocket } from './apis/WebSockets';
 
-  const handleReceiveMessage = (message: string) => {
-    console.log('Received message:', message);
-  };
-
-  const { messages, isOpen, sendMessage } = useWebSocket('ws://localhost:6789', handleReceiveMessage);
+function App() {
+  const {sendJsonMessage, lastJsonMessage} = PingWebSocket();
 
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <text>
+          {lastJsonMessage ? (
+              <pre>{JSON.stringify(lastJsonMessage, null, 2)}</pre>
+            ) : (
+              <p>No messages received yet.</p>
+            )}
+        </text>
         <a
           className="App-link"
           href="https://reactjs.org"
