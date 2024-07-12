@@ -1,34 +1,32 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
+import { WS_URL } from './constants';
+
 
 export const PingWebSocket = () => {
-  const WS_URL = "ws://127.0.0.1:6789"
-  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
-    WS_URL,
-    {
-      share: false,
-      shouldReconnect: () => true,
-    },
-  )
+  
+    const [messageHistory, setMessageHistory] = useState<MessageEvent<any>[]>([]);
 
-  // Run when the connection state (readyState) changes
-  useEffect(() => {
-    console.log("Connection state changed")
-    if (readyState === ReadyState.OPEN) {
-      sendJsonMessage({
-        event: "subscribe",
-        data: {
-          channel: "general-chatroom",
-        },
-      })
+    const { sendMessage, lastMessage, readyState } = useWebSocket(WS_URL);
+
+    useEffect(() => {
+    if (lastMessage !== null) {
+        console.log(lastMessage);
+        setMessageHistory((prev) => prev.concat(lastMessage));
     }
-  }, [readyState])
+    }, [lastMessage]);
 
-  // Run when a new WebSocket message is received (lastJsonMessage)
-  useEffect(() => {
-    console.log(`Got a new message: ${lastJsonMessage}`)
-  }, [lastJsonMessage])
 
-  return {sendJsonMessage, lastJsonMessage}
+    const handleClickSendMessage = useCallback(() => sendMessage('Hello'), []);
+
+    const connectionStatus = {
+    [ReadyState.CONNECTING]: 'Connecting',
+    [ReadyState.OPEN]: 'Open',
+    [ReadyState.CLOSING]: 'Closing',
+    [ReadyState.CLOSED]: 'Closed',
+    [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+    }[readyState];
+
+    return {sendMessage, lastMessage, connectionStatus};
 }
